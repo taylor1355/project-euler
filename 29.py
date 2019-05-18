@@ -1,14 +1,9 @@
+import utils
+
 def prime_factorization(base, power):
-    factorization = {}
-    factor = 2
-    while base > 1:
-        if base % factor == 0:
-            if factor not in factorization:
-                factorization[factor] = 0
-            factorization[factor] += power
-            base = base // factor
-        else:
-            factor += 1
+    factorization = utils.prime_factorization(base)
+    for factor in factorization:
+        factorization[factor] *= power
 
     factorization_str = ''
     for factor, power in factorization.items():
