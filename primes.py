@@ -4,6 +4,7 @@ import time
 class PrimeCalculator:
     def __init__(self):
         self.primes = [2, 3, 5, 7, 11, 13, 17]
+        self.prime_table = set(self.primes)
         self.flt_bases = list(self.primes)
         self.coprime_classes, self.modulus = self.coprime_congruence_classes(self.primes)
 
@@ -32,6 +33,20 @@ class PrimeCalculator:
         for prime_factorization in self.iterate_factorizations_helper(0, upper_bound, {}):
             yield prime_factorization
 
+    def iterate_factorizations_helper(self, start_index, upper_bound, curr_factorization):
+        i = 0
+        for prime in self.iterate_primes(start_index=start_index, upper_bound=upper_bound):
+            new_factorization = curr_factorization.copy()
+            if prime not in new_factorization:
+                new_factorization[prime] = 0
+            new_factorization[prime] += 1
+            yield new_factorization
+
+            for factorization in self.iterate_factorizations_helper(i, upper_bound // prime, new_factorization):
+                yield factorization
+
+            i += 1
+            
     def test_time(self):
         for i in range(9):
             upper_bound = int(10**i)
@@ -47,19 +62,7 @@ class PrimeCalculator:
             print('Fact Time:', time.time() - start_fact, 'sec')
             print()
 
-    def iterate_factorizations_helper(self, start_index, upper_bound, curr_factorization):
-        i = 0
-        for prime in self.iterate_primes(start_index=start_index, upper_bound=upper_bound):
-            new_factorization = curr_factorization.copy()
-            if prime not in new_factorization:
-                new_factorization[prime] = 0
-            new_factorization[prime] += 1
-            yield new_factorization
 
-            for factorization in self.iterate_factorizations_helper(i, upper_bound // prime, new_factorization):
-                yield factorization
-
-            i += 1
 
     def expand_if_needed(self, index):
         while index > len(self.primes) - 1:
@@ -71,6 +74,7 @@ class PrimeCalculator:
             # print(candidate, prob, False if not prob else self.is_prime(candidate))
             if self.probably_prime(candidate) and self.is_prime(candidate):
                 self.primes.append(candidate)
+                self.prime_table.add(candidate)
                 break
 
     # find the set of congruence classes mod product(primes)
@@ -99,6 +103,9 @@ class PrimeCalculator:
 
     # iterate through potential divisors until sqrt(num) is reached with no divisors found
     def is_prime(self, num):
+        if num in self.prime_table:
+            return True
+
         divisor_bound = int(math.sqrt(num))
         for prime in self.iterate_primes():
             if prime > divisor_bound:
