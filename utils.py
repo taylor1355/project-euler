@@ -23,3 +23,21 @@ def gcd(num1, num2):
         return a
     elif b == 1:
         return 1
+
+def is_palindrome(string):
+    for i in range((len(string) + 1) // 2):
+        if string[i] != string[-1 - i]:
+            return False
+    return True
+
+def to_base(num, base):
+    if base > 36:
+        raise ValueError('Maximum base is 36')
+    base_str = ''
+    while num > 0:
+        remainder = num % base
+        if remainder > 9:
+            remainder = chr(ord('a') + remainder - 10)
+        base_str = str(remainder) + base_str
+        num = num // base
+    return base_str
