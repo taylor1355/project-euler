@@ -46,7 +46,7 @@ class PrimeCalculator:
                 yield factorization
 
             i += 1
-            
+
     def test_time(self):
         for i in range(9):
             upper_bound = int(10**i)
@@ -105,6 +105,8 @@ class PrimeCalculator:
     def is_prime(self, num):
         if num in self.prime_table:
             return True
+        elif num <= 1:
+            return False
 
         divisor_bound = int(math.sqrt(num))
         for prime in self.iterate_primes():
