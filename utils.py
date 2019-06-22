@@ -1,6 +1,8 @@
+# iterates through all digit permutations where order doesn't matter
 def iterate_digit_counts(num_digits, counts=None, start_index=0):
     if counts is None:
         counts = [0] * 10
+
     if num_digits == 0:
         yield counts
     else:
@@ -9,6 +11,16 @@ def iterate_digit_counts(num_digits, counts=None, start_index=0):
             for counts in iterate_digit_counts(num_digits - 1, counts, i):
                 yield counts
             counts[i] -= 1
+
+# iterates through all permutations of a string
+def iterate_permutations(characters):
+    if characters == '':
+        yield ''
+
+    for index in range(len(characters)):
+        new_characters = characters[:index] + characters[index+1:]
+        for sub_permutation in iterate_permutations(new_characters):
+            yield characters[index] + sub_permutation
 
 # gcd(a, b) = gcd(b, a-b)
 def gcd(num1, num2):
