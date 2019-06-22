@@ -1,4 +1,6 @@
 import math
+import utils
+
 # want all integer solutions of a+b+c=p (specifying perimeter), a^2+b^2=c^2 (right triangle constraint)
 # first parameterize a and b as x=a+b, y=a^2+b^2 giving x=p-c, y=c^2
 # solving for a and b in terms of x and y, we get x^2=y+2ab
@@ -16,7 +18,7 @@ for p in range(3, 1001):
         radicand = 8*y - 4*x**2
         if radicand > 0:
             root = int(math.sqrt(radicand))
-            if root**2 == radicand and root % 2 == 0 and (x + root//2) % 2 == 0: # making sure a, b are integers
+            if utils.is_perfect_square(radicand) and root % 2 == 0 and (x + root//2) % 2 == 0: # making sure a, b are integers
                 a = (x + root//2) // 2
                 b = (x - root//2) // 2
                 if min(a, b) > 0:

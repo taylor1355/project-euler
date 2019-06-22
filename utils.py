@@ -1,3 +1,5 @@
+import math
+
 # iterates through all digit permutations where order doesn't matter
 def iterate_digit_counts(num_digits, counts=None, start_index=0):
     if counts is None:
@@ -36,11 +38,25 @@ def gcd(num1, num2):
     elif b == 1:
         return 1
 
+# can determine if a number is triangular by solving for x=n(n+1)/2
+# if the resultant n is a positive integer, then x is triangular
+# solving for n gives n = (sqrt(1+8x)-1)/2
+def is_triangular(num):
+    radicand = 1 + 8*num
+    if radicand > 0 and is_perfect_square(radicand):
+        numerator = int(math.sqrt(radicand)) - 1
+        return numerator > 0 and numerator % 2 == 0
+    return False
+
 def is_palindrome(string):
     for i in range((len(string) + 1) // 2):
         if string[i] != string[-1 - i]:
             return False
     return True
+
+def is_perfect_square(num):
+    root = int(math.sqrt(num))
+    return num == root**2
 
 def to_base(num, base):
     if base > 36:
