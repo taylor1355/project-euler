@@ -1,3 +1,5 @@
+import utils
+
 # difference between nth and (n+1)th pentagonal numbers is 3n+1
 # so if two pentagonal numbers whose difference (d) and sum are
 # pentagonal, the largest pentagonal number that needs to be
@@ -34,22 +36,25 @@ class PentagonalTracker:
         self.pentagonals.append(next)
         self.pentagonal_set.add(next)
 
+def next_pentagonal(sequence):
+    n = len(sequence) + 1
+    return utils.nth_pentagonal(n)
+pentagonals = utils.Sequence(next_pentagonal)
 
-tracker = PentagonalTracker()
 upper_bound = None
 min_difference = None
 k = 2
 while upper_bound is None or k < upper_bound:
     if k % 10000 == 0:
         print('k =', k)
-    high_pentagonal = tracker.nth_pentagonal(k)
+    high_pentagonal = pentagonals.nth_element(k)
     for j in range(k - 1, 0, -1):
-        low_pentagonal = tracker.nth_pentagonal(j)
+        low_pentagonal = pentagonals.nth_element(j)
         sum = high_pentagonal + low_pentagonal
         difference = high_pentagonal - low_pentagonal
         if min_difference is not None and difference >= min_difference:
             break
-        elif tracker.is_pentagonal(sum) and tracker.is_pentagonal(difference):
+        elif pentagonals.belongs(sum) and pentagonals.belongs(difference):
             if min_difference is None or difference < min_difference:
                 upper_bound = (difference - 1) // 3
                 min_difference = difference

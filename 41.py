@@ -9,7 +9,7 @@ for n in range(2, 10):
     digits += str(n)
     for permutation in utils.iterate_permutations(digits):
         num = int(permutation)
-        if pc.probably_prime(num) and pc.is_prime(num):
+        if pc.is_prime(num):
             max_pandigital = max(max_pandigital, num)
             print(num)
 

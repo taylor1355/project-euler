@@ -1,3 +1,4 @@
+import utils
 import math
 import time
 
@@ -70,9 +71,7 @@ class PrimeCalculator:
 
     def generate_next_prime(self):
         for candidate in self.generate_candidates(start=self.primes[-1]):
-            prob = self.probably_prime(candidate)
-            # print(candidate, prob, False if not prob else self.is_prime(candidate))
-            if self.probably_prime(candidate) and self.is_prime(candidate):
+            if self.is_prime(candidate):
                 self.primes.append(candidate)
                 self.prime_table.add(candidate)
                 break
@@ -81,7 +80,7 @@ class PrimeCalculator:
     # coprime to each prime in primes (modulus determined by Chinese
     # Remainder Theorem)
     def coprime_congruence_classes(self, primes):
-        modulus = self.product(primes)
+        modulus = utils.product(primes)
         coprime_congruence_classes = set([num for num in range(1, modulus)])
         for prime in primes:
             prime_multiple = prime
@@ -92,7 +91,7 @@ class PrimeCalculator:
         coprime_congruence_classes.sort()
         return coprime_congruence_classes, modulus
 
-    # use partial Sieve of Eratosthenes to narrow down possibilities
+    # use partial Sieve of Eratosthenes to narrow down prime possibilities
     def generate_candidates(self, start=0): # TODO: use binary search to set initial coprime index
         offset = self.modulus * (start // self.modulus)
         while True:
@@ -101,8 +100,11 @@ class PrimeCalculator:
                     yield coprime_class + offset
             offset += self.modulus
 
-    # iterate through potential divisors until sqrt(num) is reached with no divisors found
     def is_prime(self, num):
+        return self.probably_prime(num) and self.definitely_prime(num)
+
+    # iterate through potential divisors until sqrt(num) is reached with no divisors found
+    def definitely_prime(self, num):
         if num in self.prime_table:
             return True
         elif num <= 1:
@@ -131,20 +133,4 @@ class PrimeCalculator:
     # returns whether the converse of Fermat's Little Theorem (FLT)
     # holds for prime candidate p and coprime base a
     def flt_converse(self, a, p):
-        return self.fast_modular_exponentiation(a, p-1, p) == 1
-
-    def fast_modular_exponentiation(self, base, power, modulus):
-        result = 1
-        square = base
-        while power > 0:
-            if power % 2 == 1:
-                result = (result * square) % modulus
-            power = power >> 1
-            square = (square * square) % modulus
-        return result
-
-    def product(self, nums):
-        curr_product = 1
-        for num in nums:
-            curr_product *= num
-        return curr_product
+        return utils.fast_modular_exponentiation(a, p-1, p) == 1

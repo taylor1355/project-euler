@@ -1,5 +1,37 @@
 import math
 
+class Sequence:
+    def __init__(self, next_func):
+        self.next_func = next_func
+        self.sequence = []
+        self.elements = set()
+
+    def belongs(self, num):
+        while len(self.sequence) == 0 or num > self.sequence[-1]:
+            self.generate_next()
+        return num in self.elements
+
+    # indexed starting at 1
+    def nth_element(self, n):
+        while len(self.sequence) == 0 or n > len(self.sequence):
+            self.generate_next()
+        return self.sequence[n - 1]
+
+    def iterate(self, upper_bound=None):
+        n = 1
+        while True:
+            if n > len(self.sequence):
+                self.generate_next()
+            yield self.sequence[n-1]
+            n += 1
+            if upper_bound is not None and n >= upper_bound:
+                break
+
+    def generate_next(self):
+        next = self.next_func(self.sequence)
+        self.sequence.append(next)
+        self.elements.add(next)
+
 # iterates through all digit permutations where order doesn't matter
 def iterate_digit_counts(num_digits, counts=None, start_index=0):
     if counts is None:
@@ -48,6 +80,32 @@ def is_triangular(num):
         return numerator > 0 and numerator % 2 == 0
     return False
 
+def nth_triangular(n):
+    return n * (n + 1) // 2
+
+# uses same method described in is_triangular
+def is_pentagonal(num):
+    radicand = 1 + 24*num
+    if radicand > 0 and is_perfect_square(radicand):
+        numerator = int(math.sqrt(radicand)) + 1
+        return numerator % 6 == 0
+    return False
+
+def nth_pentagonal(n):
+    return n * (3*n - 1) // 2
+
+# uses same method described in is_triangular
+def is_hexagonal(num):
+    radicand = 1 + 8*num
+    if radicand > 0 and is_perfect_square(radicand):
+        numerator = int(math.sqrt(radicand)) + 1
+        return numerator % 4 == 0
+    return False
+
+def nth_hexagonal(n):
+    return n * (2*n - 1)
+
+
 def is_palindrome(string):
     for i in range((len(string) + 1) // 2):
         if string[i] != string[-1 - i]:
@@ -55,7 +113,7 @@ def is_palindrome(string):
     return True
 
 def is_perfect_square(num):
-    root = int(math.sqrt(num))
+    root = int(round(math.sqrt(num)))
     return num == root**2
 
 def to_base(num, base):
@@ -69,3 +127,19 @@ def to_base(num, base):
         base_str = str(remainder) + base_str
         num = num // base
     return base_str
+
+def fast_modular_exponentiation(base, power, modulus):
+    result = 1
+    square = base
+    while power > 0:
+        if power % 2 == 1:
+            result = (result * square) % modulus
+        power = power >> 1
+        square = (square * square) % modulus
+    return result
+
+def product(nums):
+    curr_product = 1
+    for num in nums:
+        curr_product *= num
+    return curr_product
