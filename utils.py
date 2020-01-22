@@ -1,3 +1,4 @@
+import collections
 import math
 
 class Sequence:
@@ -32,29 +33,96 @@ class Sequence:
         self.sequence.append(next)
         self.elements.add(next)
 
-# iterates through all digit permutations where order doesn't matter
-def iterate_digit_counts(num_digits, counts=None, start_index=0):
+class Counts(collections.UserDict):
+    def __init__(self, iterable):
+        counts = {}
+        if isinstance(iterable, collections.Mapping):
+            counts = iterable
+        else:
+            for element in iterable:
+                if element not in counts:
+                    counts[element] = 0
+                counts[element] += 1
+
+        self.sum = 0
+        super().__init__(counts)
+
+    def __delitem__(self, key):
+        count = self[key]
+        self.sum -= count
+        super().__delitem__(key)
+
+    def __setitem__(self, key, count):
+        if key in self:
+            self.sum -= self[key]
+        self.sum += count
+        super().__setitem__(key, count)
+
+# iterates through all digit permutations where order doesn't matter and repeats are allowed
+def iterate_digit_counts(num_digits, counts=None, lowest_digit=0):
     if counts is None:
         counts = [0] * 10
 
     if num_digits == 0:
         yield counts
     else:
-        for i in range(start_index, len(counts)):
+        for i in range(lowest_digit, len(counts)):
             counts[i] += 1
             for counts in iterate_digit_counts(num_digits - 1, counts, i):
                 yield counts
             counts[i] -= 1
 
-# iterates through all permutations of a string
-def iterate_permutations(characters):
-    if characters == '':
-        yield ''
+# TODO: make a counts class
+def digit_counts_to_digits(digit_counts):
+    digits = []
+    for i in range(len(digit_counts)):
+        digits += [i] * digit_counts[i]
+    return digits
 
-    for index in range(len(characters)):
-        new_characters = characters[:index] + characters[index+1:]
-        for sub_permutation in iterate_permutations(new_characters):
-            yield characters[index] + sub_permutation
+# iterates through all permutations of a set of elements (with duplicates allowed)
+def iterate_permutations(elements, num_to_permute=None):
+    counts = Counts(elements)
+
+    if num_to_permute is None:
+        num_to_permute = counts.sum
+
+    yield from iterate_permutations_helper(counts, num_to_permute)
+
+def iterate_permutations_helper(counts, num_to_permute):
+    if counts.sum == 0 or num_to_permute == 0:
+        yield []
+        return
+
+    for element in counts.keys():
+        if counts[element] > 0:
+            counts[element] -= 1
+            for sub_permutation in iterate_permutations_helper(counts, num_to_permute - 1):
+                yield [element] + sub_permutation
+            counts[element] += 1
+
+# iterates through all combinations of a set of elements (with duplicates allowed)
+def iterate_combinations(elements, num_to_choose):
+    counts = Counts(elements)
+    yield from iterate_combinations_helper(counts, num_to_choose)
+
+def iterate_combinations_helper(counts, num_to_choose):
+    if counts.sum < num_to_choose or num_to_choose == 0:
+        yield []
+        return
+
+    element, count = counts.popitem()
+    min_sub_count = max(0, num_to_choose - counts.sum)
+    max_sub_count = min(num_to_choose, count)
+    for sub_count in range(min_sub_count, max_sub_count + 1):
+        for sub_combination in iterate_combinations_helper(counts, num_to_choose - sub_count):
+            yield [element] * sub_count + sub_combination
+    counts[element] = count
+
+def digits_to_int(digits):
+    num_str = ''
+    for digit in digits:
+        num_str += str(digit)
+    return int(num_str)
 
 # gcd(a, b) = gcd(b, a-b)
 def gcd(num1, num2):

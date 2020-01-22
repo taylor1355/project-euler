@@ -62,7 +62,7 @@ class PrimeCalculator:
                 yield factorization
 
     def test_time(self):
-        for i in range(9):
+        for i in range(7):
             upper_bound = int(10**i)
             start_prime = time.time()
             primes = [p for p in self.iterate_primes(upper_bound=upper_bound)]
